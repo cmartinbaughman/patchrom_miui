@@ -115,14 +115,17 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
     Drawable mBottomLineDrawable;
 
     /**
-     * @param padding is the value in pixel that indicates left/right unclickable area
-     * @hide for libra only
+     * Keep mScrollY value between 0 and 1
      */
-    @MiuiHook(MiuiHookType.NEW_METHOD)
-    public void setTouchPadding(int paddingLeft, int paddingRight) {
-        mTouchPaddingLeft = paddingLeft;
-        mTouchPaddingRight = paddingRight;
-    }
+    @MiuiHook(MiuiHookType.NEW_FIELD)
+    float mScrollFY = 0.f;
+
+    /**
+     * Enable Spring when Over Scroll
+     */
+    @MiuiHook(MiuiHookType.NEW_FIELD)
+    boolean mSpringOverScrollEnable = true;
+
 
     @MiuiHook(MiuiHookType.NEW_CLASS)
     static class Injector {
@@ -203,6 +206,45 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                     }
                 }
             }
+        }
+
+        static void finishActionModeIfNeeded(AbsListView listView, ActionMode actionMode) {
+            if (!UiUtils.isV5Ui(listView.getContext())) {
+                if (listView.getCheckedItemCount() == 0) {
+                    actionMode.finish();
+                }
+            }
+        }
+
+        static void initAbsListView(AbsListView listView) {
+            if (UiUtils.isV5Ui(listView.getContext())) {
+                listView.mOverscrollDistance = Integer.MAX_VALUE;
+                listView.mOverflingDistance = Integer.MAX_VALUE;
+            }
+
+            setChildSequenceStateTaggingListener(listView);
+        }
+
+        static void clearScrollFY(AbsListView listView) {
+            listView.mScrollFY = 0.0f;
+        }
+
+        static int scaleOverScrollDeltaY(AbsListView listView, int deltaY, int scrollY) {
+            int vRet = deltaY;
+            if (listView.isSpringOverScrollEnabled()) {
+                float t = 0.f;
+                float scale = 0.f;
+                float deltaYdiv = 0.f;
+                final int depth = (int) (Math.signum(deltaY) * 1.f);
+                for (int i = 0; i < Math.abs(deltaY); i++) {
+                    t = (float) ((float) Math.abs(scrollY + listView.mScrollFY + deltaYdiv) / (float) listView.getHeight());
+                    scale = ((float) Math.pow(t, 3)) * 98.f + 2.f;
+                    deltaYdiv += depth / scale;
+                }
+                vRet = (int) (deltaYdiv + listView.mScrollFY);
+                listView.mScrollFY = deltaYdiv + listView.mScrollFY - vRet;
+            }
+            return vRet;
         }
     }
 
@@ -929,7 +971,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
         mDensityScale = getContext().getResources().getDisplayMetrics().density;
 
-        Injector.setChildSequenceStateTaggingListener(this); // Miui Hook
+        // MIUI ADD:START
+        // add for spring over scroll
+        Injector.initAbsListView(this);
+        // END
     }
 
     @Override
@@ -3221,6 +3266,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         }
     }
 
+    @MiuiHook(MiuiHookType.CHANGE_CODE)
     private boolean startScrollIfNeeded(int y) {
         // Check if we have moved far enough that it looks more like a
         // scroll than a tap
@@ -3232,6 +3278,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             if (overscroll) {
                 mTouchMode = TOUCH_MODE_OVERSCROLL;
                 mMotionCorrection = 0;
+                // MIUI ADD:START
+                // add for spring over scroll
+                Injector.clearScrollFY(this);
+                // END
             } else {
                 mTouchMode = TOUCH_MODE_SCROLL;
                 mMotionCorrection = deltaY > 0 ? mTouchSlop : -mTouchSlop;
@@ -3262,6 +3312,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         return false;
     }
 
+    @MiuiHook(MiuiHookType.CHANGE_CODE)
     private void scrollIfNeeded(int y) {
         final int rawDeltaY = y - mMotionY;
         final int deltaY = rawDeltaY - mMotionCorrection;
@@ -3322,8 +3373,13 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                     if (atEdge) {
                         // Apply overscroll
 
-                        int overscroll = -incrementalDeltaY -
-                                (motionViewRealTop - motionViewPrevTop);
+                        // MIUI MODIFY
+                        // add for spring over scroll
+                        // Original:
+                        // int overscroll = -incrementalDeltaY -
+                        // (motionViewRealTop - motionViewPrevTop);
+                        int overscroll = Injector.scaleOverScrollDeltaY(this, -incrementalDeltaY
+                                - (motionViewRealTop - motionViewPrevTop), mScrollY);
                         overScrollBy(0, overscroll, 0, mScrollY, 0, 0,
                                 0, mOverscrollDistance, true);
                         if (Math.abs(mOverscrollDistance) == Math.abs(mScrollY)) {
@@ -3339,6 +3395,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                                         !contentFits())) {
                             mDirection = 0; // Reset when entering overscroll.
                             mTouchMode = TOUCH_MODE_OVERSCROLL;
+                            // MIUI ADD:START
+                            // add for spring over scroll
+                            Injector.clearScrollFY(this);
+                            // END
                             if (rawDeltaY > 0) {
                                 mEdgeGlowTop.onPull((float) overscroll / getHeight());
                                 if (!mEdgeGlowBottom.isFinished()) {
@@ -3376,6 +3436,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                     incrementalDeltaY = 0;
                 }
 
+                // MIUI ADD:START
+                // add for spring over scroll
+                overScrollDistance = Injector.scaleOverScrollDeltaY(this, overScrollDistance, mScrollY);
+                // END
                 if (overScrollDistance != 0) {
                     overScrollBy(0, overScrollDistance, 0, mScrollY, 0, 0,
                             0, mOverscrollDistance, true);
@@ -3515,6 +3579,10 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 mMotionCorrection = 0;
                 mActivePointerId = ev.getPointerId(0);
                 mDirection = 0;
+                // MIUI ADD:START
+                // add for spring over scroll
+                Injector.clearScrollFY(this);
+                // END
                 break;
             }
 
@@ -3700,7 +3768,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                                   (mFirstPosition + childCount == mItemCount &&
                                         lastChildBottom == contentBottom + mOverscrollDistance))) {
                             if (mFlingRunnable == null) {
-                                mFlingRunnable = new FlingRunnable();
+                                // MIUI MODIFY
+                                // modify for spring over scroll
+                                // Original:
+                                // mFlingRunnable = new FlingRunnable();
+                                mFlingRunnable = createFlingRunnable();
                             }
                             reportScrollStateChange(OnScrollListener.SCROLL_STATE_FLING);
 
@@ -3724,17 +3796,29 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
 
             case TOUCH_MODE_OVERSCROLL:
                 if (mFlingRunnable == null) {
-                    mFlingRunnable = new FlingRunnable();
+                    // MIUI MODIFY
+                    // modify for spring over scroll
+                    // Original:
+                    // mFlingRunnable = new FlingRunnable();
+                    mFlingRunnable = createFlingRunnable();
                 }
                 final VelocityTracker velocityTracker = mVelocityTracker;
                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                 final int initialVelocity = (int) velocityTracker.getYVelocity(mActivePointerId);
 
                 reportScrollStateChange(OnScrollListener.SCROLL_STATE_FLING);
-                if (Math.abs(initialVelocity) > mMinimumVelocity) {
+                // MIUI MODIFY
+                // add for spring over scroll
+                // Original:
+                // if (Math.abs(initialVelocity) > mMinimumVelocity) {
+                //     mFlingRunnable.startOverfling(-initialVelocity);
+                // } else {
+                //     mFlingRunnable.startSpringback();
+                // }
+                if (isSpringOverScrollEnabled()) {
                     mFlingRunnable.startOverfling(-initialVelocity);
                 } else {
-                    mFlingRunnable.startSpringback();
+                    startFlingRunnable(initialVelocity);
                 }
 
                 break;
@@ -3777,7 +3861,11 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
             switch (mTouchMode) {
             case TOUCH_MODE_OVERSCROLL:
                 if (mFlingRunnable == null) {
-                    mFlingRunnable = new FlingRunnable();
+                    // MIUI MODIFY
+                    // modify for spring over scroll
+                    // Original:
+                    // mFlingRunnable = new FlingRunnable();
+                    mFlingRunnable = createFlingRunnable();
                 }
                 mFlingRunnable.startSpringback();
                 break;
@@ -4069,11 +4157,16 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         return false;
     }
 
+    @MiuiHook(MiuiHookType.CHANGE_CODE)
     private void onSecondaryPointerUp(MotionEvent ev) {
         final int pointerIndex = (ev.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >>
                 MotionEvent.ACTION_POINTER_INDEX_SHIFT;
         final int pointerId = ev.getPointerId(pointerIndex);
-        if (pointerId == mActivePointerId) {
+        // MIUI MODIFY
+        // modify for spring over scroll
+        // Original:
+        // if (pointerId == mActivePointerId)
+        if (handleSecondaryPointerUp(pointerId)) {
             // This was our active pointer going up. Choose a new
             // active pointer and adjust accordingly.
             // TODO: Make this decision more intelligent.
@@ -4336,7 +4429,13 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 if (atEnd) {
                     if (motionView != null) {
                         // Tweak the scroll for how far we overshot
-                        int overshoot = -(delta - (motionView.getTop() - oldTop));
+
+                        // MIUI MODIFY
+                        // modify for spring over scroll
+                        // Original:
+                        // int overshoot = -(delta - (motionView.getTop() - oldTop));
+                        int overshoot = Injector.scaleOverScrollDeltaY(AbsListView.this,
+                                -(delta - (motionView.getTop() - oldTop)), getScrollY());
                         overScrollBy(0, overshoot, 0, mScrollY, 0, 0,
                                 0, mOverflingDistance, false);
                     }
@@ -4373,7 +4472,12 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 if (scroller.computeScrollOffset()) {
                     final int scrollY = mScrollY;
                     final int currY = scroller.getCurrY();
-                    final int deltaY = currY - scrollY;
+                    // MIUI MODIFY
+                    // modify for spring over scroll
+                    // Original:
+                    // final int deltaY = currY - scrollY;
+                    final int deltaY = scaleOverScrollDeltaY(currY - scrollY, scrollY);
+
                     if (overScrollBy(0, deltaY, 0, scrollY, 0, 0,
                             0, mOverflingDistance, false)) {
                         final boolean crossDown = scrollY <= 0 && currY > 0;
@@ -4397,6 +4501,81 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 }
                 break;
             }
+            }
+        }
+
+        @MiuiHook(MiuiHookType.NEW_METHOD)
+        private int scaleOverScrollDeltaY(int deltaY, int scrollY) {
+            int retval = deltaY;
+            if (!mScroller.checkSpringBackState()) {
+                retval = Injector.scaleOverScrollDeltaY(AbsListView.this, deltaY, scrollY);
+            }
+
+            return retval;
+        }
+
+        /**
+         * @hide
+         */
+        @MiuiHook(MiuiHookType.NEW_METHOD)
+        protected OverScroller getScroller() {
+            return mScroller;
+        }
+
+    }
+
+    private class MiuiFlingRunnable extends FlingRunnable {
+
+        public MiuiFlingRunnable() {
+            super();
+            getScroller().setSpringOverScrollEnable(isSpringOverScrollEnabled());
+        }
+
+        @Override
+        void startSpringback() {
+            if (isSpringOverScrollEnabled()) {
+                float t = (float) ((float)Math.abs(getScrollY()) / ((float) getHeight()));
+                final float scale = (float) (Math.pow(t, 3) * 20.0f) + 1.0f;
+                getScroller().setDecelerationScale(scale);
+            }
+
+            super.startSpringback();
+        }
+
+        @Override
+        void startOverfling(int initialVelocity) {
+            final OverScroller overScroller = getScroller();
+            final boolean enable = isSpringOverScrollEnabled();
+            if (enable) {
+                float t = (float) ((float)Math.abs(getScrollY()) / ((float) getHeight()));
+                final float scale = (float) (Math.pow(t, 3) * 20.0f) + 3.0f;
+                overScroller.setFriction(scale);
+            }
+
+            super.startOverfling(initialVelocity);
+            if (enable) {
+                overScroller.setFriction(ViewConfiguration.getScrollFriction());
+            }
+        }
+
+        @Override
+        void edgeReached(int delta) {
+            final int savedOverflingDistance = mOverflingDistance;
+            final boolean enable = isSpringOverScrollEnabled();
+            if (enable) {
+                final OverScroller overScroller = getScroller();
+                float t = overScroller.getCurrYVelocity() / (float) mMaximumVelocity;
+                final float scale = (float) (t * 240.0f) + 1.0f;
+                overScroller.setDecelerationScale(Math.abs(scale));
+                overScroller.setTotalOverDistance(getHeight());
+                // super.edgetReached will use mOverflingDistance to notify OverScroller
+                // so save mOverflingDistance temporarily
+                mOverflingDistance = getHeight();
+            }
+
+            super.edgeReached(delta);
+            if (enable) {
+                mOverflingDistance = savedOverflingDistance;
             }
         }
     }
@@ -4848,9 +5027,14 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
      * @return A scalar dimensionless value representing the coefficient of
      *         friction.
      */
+    @MiuiHook(MiuiHookType.CHANGE_CODE)
     public void setFriction(float friction) {
         if (mFlingRunnable == null) {
-            mFlingRunnable = new FlingRunnable();
+            // MIUI MODIFY
+            // modify for spring over scroll
+            // Original:
+            // mFlingRunnable = new FlingRunnable();
+            mFlingRunnable = createFlingRunnable();
         }
         mFlingRunnable.mScroller.setFriction(friction);
     }
@@ -4939,9 +5123,14 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         smoothScrollBy(distance, duration, false);
     }
 
+    @MiuiHook(MiuiHookType.CHANGE_CODE)
     void smoothScrollBy(int distance, int duration, boolean linear) {
         if (mFlingRunnable == null) {
-            mFlingRunnable = new FlingRunnable();
+            // MIUI MODIFY
+            // modify for spring over scroll
+            // Original:
+            // mFlingRunnable = new FlingRunnable();
+            mFlingRunnable = createFlingRunnable();
         }
 
         // No sense starting to scroll if we're not going anywhere
@@ -6271,10 +6460,14 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
                 int position, long id, boolean checked) {
             mWrapped.onItemCheckedStateChanged(mode, position, id, checked);
 
-            // If there are no items selected we no longer need the selection mode.
-            if (getCheckedItemCount() == 0) {
-                mode.finish();
-            }
+            // MIUI MODIFY
+            // do not finish action mode when there are no items selected for V5
+            // Origin:
+            // // If there are no items selected we no longer need the selection mode.
+            // if (getCheckedItemCount() == 0) {
+            //     mode.finish();
+            // }
+            Injector.finishActionModeIfNeeded(AbsListView.this, mode);
         }
     }
 
@@ -6757,5 +6950,80 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
         } else {
             return null;
         }
+    }
+
+    /**
+     * @hide
+     */
+    @android.annotation.MiuiHook(android.annotation.MiuiHook.MiuiHookType.NEW_METHOD)
+    protected LongSparseArray<Integer> getCheckedIdStates() {
+        return mCheckedIdStates;
+    }
+
+    /**
+     * @hide
+     */
+    @android.annotation.MiuiHook(android.annotation.MiuiHook.MiuiHookType.NEW_METHOD)
+    protected void setCheckedItemCount(int count) {
+        mCheckedItemCount = count;
+    }
+
+    /**
+     * @param padding is the value in pixel that indicates left/right unclickable area
+     * @hide for libra only
+     */
+    @MiuiHook(MiuiHookType.NEW_METHOD)
+    public void setTouchPadding(int paddingLeft, int paddingRight) {
+        mTouchPaddingLeft = paddingLeft;
+        mTouchPaddingRight = paddingRight;
+    }
+
+    /**
+     * disable Spring Over Scroll Enable
+     * @hide
+     */
+    @MiuiHook(MiuiHookType.NEW_METHOD)
+    public void disableSpringOverScroll() {
+        if (UiUtils.isV5Ui(getContext())) {
+            mSpringOverScrollEnable = false;
+            final ViewConfiguration configuration = ViewConfiguration.get(getContext());
+            mOverscrollDistance = configuration.getScaledOverscrollDistance();
+            mOverflingDistance = configuration.getScaledOverflingDistance();
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @MiuiHook(MiuiHookType.NEW_METHOD)
+    public boolean isSpringOverScrollEnabled() {
+        return (UiUtils.isV5Ui(getContext()) && mSpringOverScrollEnable) ? true : false;
+    }
+
+    @MiuiHook(MiuiHookType.NEW_METHOD)
+    private void startFlingRunnable(int initialVelocity) {
+        if (Math.abs(initialVelocity) > mMinimumVelocity) {
+            mFlingRunnable.startOverfling(-initialVelocity);
+        } else {
+            mFlingRunnable.startSpringback();
+        }
+    }
+
+    @MiuiHook(MiuiHookType.NEW_METHOD)
+    private boolean handleSecondaryPointerUp(int pointerId) {
+        return pointerId == mActivePointerId || isSpringOverScrollEnabled();
+    }
+
+
+    @MiuiHook(MiuiHookType.NEW_METHOD)
+    private FlingRunnable createFlingRunnable() {
+        FlingRunnable flingRunnable = null;
+        if (UiUtils.isV5Ui(mContext)) {
+            flingRunnable = new MiuiFlingRunnable();
+        } else {
+            flingRunnable = new FlingRunnable();
+        }
+
+        return flingRunnable;
     }
 }

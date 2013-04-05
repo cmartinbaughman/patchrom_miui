@@ -93,7 +93,7 @@
     <string name="trackball_settings">軌跡球</string>
     <string name="pref_volume_category_title">音量鍵</string>
     <string name="pref_volume_wake_title">音量鍵喚醒</string>
-    <string name="pref_volume_wake_summary">按一下增加／減小音量鍵來喚醒設備。用於不方便按電源鍵的設備</string>
+    <string name="pref_volume_wake_summary">按一下增加／減小音量鍵來喚醒設備</string>
     <string name="status_bar_settings">通知欄設定</string>
     <string name="complete_settings">全部設定</string>
     <string name="common_settings">常用設定</string>
@@ -272,6 +272,7 @@
     <!-- bluetooth name -->
     <string name="device_default_name">小米手機</string>
     <string name="bluetooth_profile_name"><xliff:g id="BLUETOOTH_NAME">%1$s</xliff:g>的小米手機</string>
+    <string name="bluetooth_device_searchable">開放檢測</string>
 
     <string name="usage_log">程式使用統計訊息</string>
     <string name="usb_msd_title">大容量儲存</string>
@@ -404,6 +405,9 @@
 
     <string name="msd_install_status_undo">安裝驅動程式</string>
     <string name="msd_install_status_done">我已安裝驅動程式</string>
+    <string name="msd_driver_download">請下載驅動程式</string>
+    <string name="msd_driver_windows_xp_download">請使用你的電腦，下載驅動程式並執行Setup.exe進行安裝\n下載地址：http://miui.com/win</string>
+    <string name="msd_driver_mac_download">請使用你的電腦，下載驅動程式並執行AndroidFileTransfer.dmg進行安裝\n下載地址：http://miui.com/mac</string>
 
     <string name="vpn_settings_password">VPN 密碼保護</string>
     <string name="vpn_safe">安全</string>
@@ -421,6 +425,9 @@
     <string name="accessibility_enable">開啟服務</string>
     <string name="development_enable">開啟開發人員選項</string>
     <string name="device_name">手機名稱</string>
+    <string name="device_edit_title">修改手機名稱</string>
+    <string name="device_name_input_hint">請輸入手機名稱</string>
+    <string name="device_name_usage_point">在使用快傳接收發送文件、藍牙設備互聯、建立共享熱點等操作時，都會看到您的手機名稱</string>
 
     <string name="drive_mode">開車模式</string>
     <string name="enable_drive_mode">開啟開車模式</string>
@@ -464,12 +471,14 @@
     <string name="header_category_accounts">帳號</string>
 
     <string name="auto_startup_application_manage">自啟管理</string>
-    <string name="auto_startup_count">允許%d個應用開機啟動</string>
+    <string name="auto_startup_count">允許%d個應用自啟動</string>
     <string name="man_add_application">手動新增自啟應用</string>
     <string name="application_item_disable">禁用</string>
     <string name="application_item_permission">允許</string>
     <string name="application_item_already_permission">已允許</string>
     <string name="application_forbid_auto_startup">禁用%s自後臺啟動</string>
+    <string name="floating_window_switch_label">顯示浮動資訊框</string>
+    <string name="app_floating_window_dlg">允許「<xliff:g id="PACKAGE_NAME">%1$s</xliff:g>」顯示浮動資訊框嗎？</string>
 
     <string name="wps_category">快捷安全連接</string>
     <string name="wps_connect_title">連接WPS</string>
@@ -561,4 +570,24 @@
     <string name="bluetooth_is_discoverable_always">"已開啓，向附近所有藍牙裝置顯示"</string>
     <string name="bluetooth_not_visible_to_other_devices">"已關閉，不向其他藍牙裝置顯示"</string>
     <string name="bluetooth_only_visible_to_paired_devices">"已關閉，只向配對的裝置顯示"</string>
+    <string name="wifi_empty_list_wifi_off" msgid="4722299515264875943">"如要查看可用的網路，請開啟 Wi-Fi"</string>
+    <string name="dirac_control">"Dirac 音效"</string>
+
+    <string name="unlock_set_unlock_launch_picker_change_summary">"變更或停用圖案、數字或混合密碼安全性"</string>
+    <string name="unlock_set_unlock_pin_title">"數字密碼"</string>
+    <string name="unlock_set_unlock_password_title">"混合密碼"</string>
+    <string name="unlock_set_unlock_mode_pin">"數字密碼"</string>
+    <string name="unlock_set_unlock_mode_password">"混合密碼"</string>
+    <string name="unlock_disable_lock_pin_summary">"移除解鎖數字密碼"</string>
+    <string name="unlock_change_lock_pin_title">"變更解鎖數字密碼"</string>
+    <string name="lockpassword_pin_too_short">"數字密碼必須有至少%d個數字"</string>
+    <string name="lockpassword_pin_too_long">"數字密碼最多只能有<xliff:g id="NUMBER">%d</xliff:g>個數字。"</string>
+    <string name="lockpassword_pin_contains_non_digits">"數字密碼只能包含數字0-9。"</string>
+    <string name="lockpassword_pin_recently_used">"裝置管理員不允許使用最近用過的密碼。"</string>
+    <string name="lockpassword_choose_your_pin_header">"選擇數字密碼"</string>
+    <string name="lockpassword_confirm_your_pin_header">"確認數字密碼"</string>
+    <string name="lockpassword_confirm_pins_dont_match">"數字密碼不符"</string>
+    <string name="lockpassword_pin_set_toast">"已設定數字密碼"</string>
+    <string name="lockpattern_change_lock_pin_label">"變更解鎖數字密碼"</string>
+    <string name="credentials_configure_lock_screen_hint">"您必須先設定螢幕鎖定密碼，才能使用憑證儲存空間。"</string>
 </resources>
