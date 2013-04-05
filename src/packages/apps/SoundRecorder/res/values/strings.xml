@@ -53,7 +53,8 @@
     <!-- shown as the message in a dialog when an error occured because of an error accessing the sd card -->
     <string name="error_sdcard_access">Unable to access external or internal storage</string>
     <!-- shown as the message in a dialog when the app encountered an unspecified internal error -->
-    <string name="error_app_internal">Internal application error</string>
+    <string name="error_app_internal">It maybe a memory card error or another app is using recording software. Please check and try again.</string>
+    <string name="error_app_internal_title">Sound recorder error</string>
     <!-- shown as the message in a dialog when the recording could not be added to the media database -->
     <string name="error_mediadb_new_record">Unable to save recorded audio</string>
 
@@ -71,7 +72,7 @@
     <string name="call_record">Call record(%d)</string>
     <string name="fm_record">FM record(%d)</string>
     <string name="open_file_explorer">Open file explorer</string>
-    <string name="no_file">No record</string>
+    <string name="no_file">No records</string>
     <string name="mark_now">(Current)</string>
     <string name="second">%d second</string>
     <string name="minute">%d minute </string>
@@ -106,4 +107,10 @@
     <string name="low_battery_message_title">Low battery</string>
     <string name="low_battery_warning">LUnexpected shutdown may result in recording lost, it is recommended that the recording when fully charged.</string>
     <string name="low_battery_error">Cell phone battery has less than 5%, in order to ensure that the recordings are not lost, the recording has been stopped and saved.Unexpected shutdown may result in recording lost, it is recommended that the recording when fully charged.</string>
+
+    <string name="record_name_hour">.</string>
+    <string name="sound_recorder_settings">Settings</string>
+    <string name="menu_settings">Settings</string>
+    <string name="preference_led_indicator">Recording indicator when key guard locked</string>
+    <string name="preference_led_indicator_prompt">Whether to turn on the LED and res status bar indicator when recording and screen locked</string>
 </resources>

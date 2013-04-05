@@ -38,8 +38,6 @@
     <string name="alert_message_delete_note">确认要删除该条便签吗?</string>
     <string name="alert_title_discard">舍弃</string>
     <string name="alert_message_discard_changes">确认要舍弃所有修改吗?</string>
-    <string name="alert_title_exceed_image_limit">便签中的图片超过上限</string>
-    <string name="alert_message_exceed_image_limit">每张便签目前仅支持放置15张图片，您可以新建一张便签继续添加</string>
     <string name="format_move_notes_to_folder">已将所选 %1$d 条便签移到 %2$s 便签夹</string>
     <!-- export text -->
     <string name="error_sdcard_unmounted">SD卡被占用，不能操作</string>
@@ -83,11 +81,11 @@
     <string name="snippet_image_template">[图片 <xliff:g id="imageName" example="1.jpeg">%1$s</xliff:g>]</string>
 
     <string name="select_account_prompt">开启便签云同步</string>
-    <string name="enable_sync_desc">便签已支持与您的小米账户 <xliff:g id="accountName" example="100000">%1$s</xliff:g> 同步，现在开启吗？</string>
-    <string name="add_account_desc">便签已支持与小米账户同步，现在登陆并开启吗？</string>
+    <string name="enable_sync_desc">便签已支持与您的小米帐户 <xliff:g id="accountName" example="100000">%1$s</xliff:g> 同步，现在开启吗？</string>
+    <string name="add_account_desc">便签已支持与小米帐户同步，现在登录并开启吗？</string>
     <string name="not_now">暂不</string>
     <string name="enable_sync">开启</string>
-    <string name="login_sync">登陆并开启</string>
+    <string name="login_sync">登录并开启</string>
 
     <string name="pref_title_note_style">便签样式</string>
     <string name="pref_desc_mode_list">列表</string>

@@ -123,7 +123,6 @@
 
     <!-- Menu item in conversation screen for attaching something to the message being composed -->
     <!-- Menu item in conversation screen for adding a subject to the message being composed -->
-    <string name="add_subject">Add subject</string>
     <!-- Menu item in conversation screen for discarding the message currently being composed -->
     <string name="discard">Discard</string>
 
@@ -826,7 +825,6 @@
     <string name="batch_deleting_message_progress_message">Deleting selected message(s)</string>
 
     <string name="attach_subject">Subject</string>
-    <string name="delete_subject">Delete subject</string>
 
     <!-- flatshow -->
     <string name="flatshow_page_no">%1$d</string>
@@ -928,10 +926,14 @@
     <string name="private_protect">Private Protect</string>
     <string name="private_new_notification">New private message notification</string>
     <string name="enable_password_protect">Enable password protect</string>
+    <string name="enable_visible_pattern_title">Make pattern visible</string>
     <string name="importing_progress_private_message">Importing messages to private MessageBox</string>
     <string name="exporting_progress_private_message">Exporting messages from private MessageBox</string>
     <string name="confirm_export_dialog_title">Remove private contact</string>
     <string name="confirm_export_dialog_description">Remove 1 selected private contact, and conversation recovery to the normal SMS mode. Continue?</string>
+    <string name="number_add_hint">Input number to add to Private Contact</string>
+    <string name="menu_new_manual">Enter number manually</string>
+    <string name="menu_pick_from_contact">Select from contacts</string>
 
     <string name="select_local_audio">Select local audio...</string>
     <string name="select_local_video">Select local video...</string>

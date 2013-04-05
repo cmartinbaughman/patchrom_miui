@@ -40,9 +40,9 @@
     <dimen name="v5_text_font_size_list_secondary">13sp</dimen>
     <dimen name="v5_text_font_size_memo">11sp</dimen>
 
-    <dimen name="v5_list_view_single_line_height">62dip</dimen>
-    <dimen name="v5_list_view_double_line_height">62dip</dimen>
-    <dimen name="v5_list_view_treble_line_height">71dip</dimen>
+    <dimen name="v5_list_view_single_line_height">49dip</dimen>
+    <dimen name="v5_list_view_double_line_height">55dip</dimen>
+    <dimen name="v5_list_view_treble_line_height">63dip</dimen>
 
     <dimen name="v5_alert_dialog_title_height">64dip</dimen>
     <dimen name="v5_alert_dialog_button_bar_height">48dip</dimen>
@@ -107,11 +107,12 @@
     <dimen name="v5_action_bar_height_large">278dip</dimen>
 
     <dimen name="miui_password_unlock_screen_input_padding">20dp</dimen>
-    <dimen name="miui_power_menu_layout_upper_part_height">150dp</dimen>
     <dimen name="miui_account_unlock_screen_button_horizontal_padding">10dp</dimen>
     <dimen name="miui_account_unlock_screen_button_top_padding">50dp</dimen>
     <dimen name="miui_password_unlock_screen_edittext_horizontal_padding">10dp</dimen>
     <dimen name="miui_common_unlock_screen_top_margin">60dp</dimen>
     <dimen name="miui_common_unlock_screen_info_text_top_margin">8dp</dimen>
     <dimen name="miui_common_unlock_screen_info_text_padding">10dp</dimen>
+
+    <dimen name="deprecated_1">0dp</dimen>
 </resources>
